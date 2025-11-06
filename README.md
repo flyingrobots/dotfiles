@@ -1,0 +1,4 @@
+# dotfiles
+
+Symlink-managed dotfiles.
+
