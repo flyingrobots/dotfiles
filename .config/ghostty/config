@@ -1,7 +1,7 @@
 # Ghostty Terminal Configuration
 font-family = "Monaspace Radon NF"
 font-size = 14
-theme = tokyonight
+theme = Tomorrow Night Eighties
 mouse-hide-while-typing = true
 window-padding-x = 8
 window-padding-y = 8
