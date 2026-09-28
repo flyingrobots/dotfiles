@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""
+Terminal Quick-Assistant `ask` CLI with Dual-Brain Auto-Routing
+Routes to:
+  - DeepSeek-R1 (MLX 32B) for reasoning, architecture, algorithmic logic, or when -r/--think is passed.
+  - Qwen 2.5 Coder (32B) for instant shell commands, code completions, syntax lookups, and fast answers.
+"""
+import sys
+import json
+import urllib.request
+import urllib.error
+
+API_URL = "http://127.0.0.1:1234/v1/chat/completions"
+
+REASONING_KEYWORDS = [
+    "why", "explain", "design", "architect", "algorithm", "compare",
+    "tradeoff", "trade-off", "prove", "proof", "math", "analyze", "strategy"
+]
+
+def select_model(prompt_text, force_reasoning=False):
+    if force_reasoning:
+        return "deepseek-r1-distill-qwen-32b"
+    lower = prompt_text.lower()
+    for kw in REASONING_KEYWORDS:
+        # Match whole word or key phrase
+        if f" {kw} " in f" {lower} ":
+            return "deepseek-r1-distill-qwen-32b"
+    return "google/gemma-4-e4b"
+
+def main():
+    piped_input = ""
+    if not sys.stdin.isatty():
+        piped_input = sys.stdin.read().strip()
+
+    args = sys.argv[1:]
+    force_reasoning = False
+    if args and args[0] in ("-r", "--think", "--r1"):
+        force_reasoning = True
+        args = args[1:]
+
+    args_query = " ".join(args).strip()
+
+    if not args_query and not piped_input:
+        print("Usage: ask <your question>")
+        print("       ask -r <deep reasoning question>")
+        print("       cat error.log | ask why is this failing")
+        sys.exit(0)
+
+    if piped_input and args_query:
+        prompt = f"Context:\n```\n{piped_input}\n```\n\nQuestion: {args_query}"
+    elif piped_input:
+        prompt = piped_input
+    else:
+        prompt = args_query
+
+    model = select_model(prompt, force_reasoning=force_reasoning)
+    is_reasoning = "deepseek" in model
+
+    if is_reasoning:
+        system_instruction = (
+            "You are an expert systems architect and computer scientist. "
+            "Think deeply and provide rigorous, well-reasoned, and precise explanations."
+        )
+        temp = 0.6
+    else:
+        system_instruction = (
+            "You are an expert terminal and programming assistant. "
+            "Provide direct, concise, and accurate answers. "
+            "For command-line questions, lead immediately with the exact command, "
+            "followed by a brief 1-2 sentence explanation if needed. Avoid conversational fluff."
+        )
+        temp = 0.1
+
+    payload = json.dumps({
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_instruction},
+            {"role": "user", "content": prompt}
+        ],
+        "stream": True,
+        "temperature": temp
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        API_URL,
+        data=payload,
+        headers={"Content-Type": "application/json"}
+    )
+
+    badge = "\033[90m[DeepSeek-R1]\033[0m " if is_reasoning else "\033[90m[Gemma-4B]\033[0m "
+    sys.stdout.write(badge)
+    sys.stdout.flush()
+
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            in_think = False
+            for raw_line in resp:
+                line = raw_line.decode("utf-8").strip()
+                if not line or not line.startswith("data: "):
+                    continue
+                data_str = line[6:]
+                if data_str == "[DONE]":
+                    break
+                try:
+                    data = json.loads(data_str)
+                    choices = data.get("choices", [])
+                    if choices:
+                        delta = choices[0].get("delta", {})
+                        reasoning = delta.get("reasoning_content") or delta.get("reasoning") or ""
+                        if reasoning:
+                            if not in_think:
+                                sys.stdout.write("\033[90m\033[3m<thinking>\n")
+                                in_think = True
+                            sys.stdout.write(reasoning)
+                            sys.stdout.flush()
+
+                        content = delta.get("content", "")
+                        if content:
+                            if in_think:
+                                sys.stdout.write("\n</thinking>\033[0m\n\n")
+                                in_think = False
+                            sys.stdout.write(content)
+                            sys.stdout.flush()
+                except Exception:
+                    pass
+            if in_think:
+                sys.stdout.write("\n</thinking>\033[0m\n")
+            sys.stdout.write("\n")
+    except urllib.error.URLError:
+        sys.stderr.write(f"\n[Error] Could not connect to LM Studio at {API_URL}.\n")
+        sys.stderr.write("Make sure the LM Studio server is running: `lms server start`\n")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
