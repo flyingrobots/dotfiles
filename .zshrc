@@ -53,9 +53,17 @@ alias dc="docker compose"
 # Notifications (chime on Mac + push notification to iPhone via ntfy)
 alias ding='afplay /System/Library/Sounds/Glass.aiff'
 notify() {
-  local msg="${1:-Task finished!}"
+  local msg
+  if [ -n "$*" ]; then
+    msg="$*"
+  elif [ ! -t 0 ]; then
+    msg="$(cat)"
+  else
+    msg="Task finished!"
+  fi
+  local host_title="$(scutil --get LocalHostName 2>/dev/null || hostname -s 2>/dev/null || hostname)"
   afplay /System/Library/Sounds/Glass.aiff 2>/dev/null &
-  curl -s -d "$msg" "https://ntfy.sh/flyingrobots-mac-alerts" >/dev/null 2>&1 &
+  curl -s -H "Title: $host_title" -d "$msg" "https://ntfy.sh/flyingrobots-mac-alerts" >/dev/null 2>&1 &
 }
 alias ntfy="notify"
 
