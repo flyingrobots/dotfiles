@@ -32,7 +32,9 @@ def select_model(prompt_text, force_reasoning=False):
 def main():
     piped_input = ""
     if not sys.stdin.isatty():
-        piped_input = sys.stdin.read().strip()
+        import select
+        if select.select([sys.stdin], [], [], 0.0)[0]:
+            piped_input = sys.stdin.read().strip()
 
     args = sys.argv[1:]
     force_reasoning = False

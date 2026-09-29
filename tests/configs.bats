@@ -56,11 +56,15 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "configs: avante.nvim resolves to mac-node via Tailscale on client profile" {
+@test "configs: avante.nvim resolves to appropriate endpoint based on role" {
   if ! command -v nvim >/dev/null 2>&1; then
     skip "neovim not installed in this environment"
   fi
-  run nvim --headless -c "lua local cfg = require('avante.config'); assert(cfg.providers.deepseek.endpoint == 'http://mac-node:1234/v1', 'Expected mac-node endpoint, got: ' .. cfg.providers.deepseek.endpoint)" +qa
+  local expected="http://mac-node:1234/v1"
+  if [ -f "$HOME/.config/dotfiles/role" ] && [ "$(cat "$HOME/.config/dotfiles/role")" = "host" ]; then
+    expected="http://127.0.0.1:1234/v1"
+  fi
+  run nvim --headless -c "lua local cfg = require('avante.config'); assert(cfg.providers.deepseek.endpoint == '$expected', 'Expected $expected, got: ' .. cfg.providers.deepseek.endpoint)" +qa
   [ "$status" -eq 0 ]
 }
 

@@ -50,7 +50,11 @@ setup() {
   [ -x "$HOME/.local/bin/tmux-sessionizer" ]
 }
 
-@test "symlinks: active role zshrc.local is linked to client role" {
+@test "symlinks: active role zshrc.local is linked to configured role" {
+  local role="client"
+  if [ -f "$HOME/.config/dotfiles/role" ]; then
+    role="$(cat "$HOME/.config/dotfiles/role")"
+  fi
   [ -L "$HOME/.zshrc.local" ]
-  [ "$(readlink "$HOME/.zshrc.local")" = "$DOTFILES_DIR/roles/client/zshrc.role" ]
+  [ "$(readlink "$HOME/.zshrc.local")" = "$DOTFILES_DIR/roles/${role}/zshrc.role" ]
 }
