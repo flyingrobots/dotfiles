@@ -6,15 +6,18 @@
     <string>ai.lmstudio.server</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/j/.lmstudio/bin/lms</string>
+        <string>__HOME__/.lmstudio/bin/lms</string>
         <string>server</string>
         <string>start</string>
+        <string>--cors</string>
+        <string>--bind</string>
+        <string>0.0.0.0</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/Users/j/.lmstudio/server.log</string>
+    <string>__HOME__/.lmstudio/server.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/j/.lmstudio/server.err</string>
+    <string>__HOME__/.lmstudio/server.err</string>
 </dict>
 </plist>

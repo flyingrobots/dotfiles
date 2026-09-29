@@ -11,7 +11,7 @@ cdpath=(~ $cdpath)
 source <(fzf --zsh)
 
 # Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/j/.lmstudio/bin"
+export PATH="$PATH:$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
 export GPG_TTY=$(tty)
@@ -26,17 +26,29 @@ eval "$(zoxide init zsh)"
 eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
 
+# Environment variables for modern tools
+export BAT_THEME="base16"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
 # Modern aliases
 alias ls="eza --icons"
 alias ll="eza -lah --icons --git"
 alias tree="eza --tree --icons"
 alias cat="bat --paging=never"
+alias bcat="bat"
 alias v="nvim"
 alias vim="nvim"
 alias lg="lazygit"
 alias top="btop"
 alias htop="btop"
 alias gpr="gh dash"
+
+# Git & Container shortcuts
+alias gs="git status -sb"
+alias gd="git diff"
+alias gl="git log --oneline --graph --decorate"
+alias d="docker"
+alias dc="docker compose"
 
 # Notifications (chime on Mac + push notification to iPhone via ntfy)
 alias ding='afplay /System/Library/Sounds/Glass.aiff'
@@ -121,3 +133,7 @@ if [[ -o interactive ]] && [[ -t 0 ]] && [[ -n "$SSH_CONNECTION" || -n "$SSH_TTY
     fi
   fi
 fi
+
+# Machine-specific local overrides
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+

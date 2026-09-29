@@ -1,0 +1,23 @@
+# ==============================================================================
+# Client / Satellite Role Configuration
+# ==============================================================================
+
+# Remote Workstation Aliases (mac-desk)
+alias ws="ssh mac-desk"
+alias desk="ssh mac-desk"
+alias mac-desk="ssh mac-desk"
+alias max-desk="ssh mac-desk"
+
+# Remote tmux session management
+alias ws-tmux="ssh -t mac-desk 'tmux new -A -s main'"
+alias desk-tmux="ssh -t mac-desk 'tmux new -A -s main'"
+
+# Screen Sharing GUI
+alias ws-gui="open vnc://mac-desk"
+alias desk-gui="open vnc://mac-desk"
+
+# LM Studio Server via Tailscale MagicDNS
+export LMSTUDIO_HOST="mac-node"
+
+# LM Studio fallback SSH tunnel (zero-config port forward)
+alias lms-tunnel="ssh -N -L 1234:localhost:1234 mac-desk"
