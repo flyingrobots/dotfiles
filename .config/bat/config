@@ -1,0 +1,9 @@
+# bat configuration
+# Matches Tomorrow Night Eighties / base16 theme
+--theme="base16"
+
+# Show line numbers, git status markers, and file headers
+--style="numbers,changes,header"
+
+# Enable italics in supported terminals (Ghostty)
+--italic-text=always

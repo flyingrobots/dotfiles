@@ -5,12 +5,14 @@ Routes to:
   - DeepSeek-R1 (MLX 32B) for reasoning, architecture, algorithmic logic, or when -r/--think is passed.
   - Qwen 2.5 Coder (32B) for instant shell commands, code completions, syntax lookups, and fast answers.
 """
+import os
 import sys
 import json
 import urllib.request
 import urllib.error
 
-API_URL = "http://127.0.0.1:1234/v1/chat/completions"
+LMSTUDIO_HOST = os.environ.get("LMSTUDIO_HOST", "127.0.0.1")
+API_URL = f"http://{LMSTUDIO_HOST}:1234/v1/chat/completions"
 
 REASONING_KEYWORDS = [
     "why", "explain", "design", "architect", "algorithm", "compare",
@@ -30,7 +32,9 @@ def select_model(prompt_text, force_reasoning=False):
 def main():
     piped_input = ""
     if not sys.stdin.isatty():
-        piped_input = sys.stdin.read().strip()
+        import select
+        if select.select([sys.stdin], [], [], 0.0)[0]:
+            piped_input = sys.stdin.read().strip()
 
     args = sys.argv[1:]
     force_reasoning = False

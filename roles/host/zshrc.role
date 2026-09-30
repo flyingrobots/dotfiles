@@ -1,0 +1,9 @@
+# ==============================================================================
+# Host / Workstation Role Configuration
+# ==============================================================================
+
+# Local LM Studio Server
+export LMSTUDIO_HOST="127.0.0.1"
+
+# Workstation helper aliases
+alias lms-restart="$HOME/.lmstudio/bin/lms server stop && $HOME/.lmstudio/bin/lms server start --cors --bind 0.0.0.0"

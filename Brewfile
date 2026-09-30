@@ -1,5 +1,7 @@
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
+# Bash Automated Testing System
+brew "bats-core"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
 brew "btop"
 # Incredibly fast JavaScript runtime, bundler, test runner, and package manager
@@ -56,6 +58,8 @@ brew "zoxide"
 brew "zsh-autosuggestions"
 # Fish shell like syntax highlighting for zsh
 brew "zsh-syntax-highlighting"
+# GPU-accelerated terminal emulator
+cask "ghostty"
 # Terminal-based AI coding assistant
 cask "claude-code"
 # OpenAI's coding agent that runs in your terminal
